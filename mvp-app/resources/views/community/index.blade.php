@@ -8,7 +8,6 @@
 
     {{--  メインコンテンツ --}}
 
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -24,13 +23,13 @@
                 {{-- 成功メッセージ --}}
                 @if(session('success'))
                     <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700">
-                        {session{'success'}}
+                        {{session('success')}}
                     </div>
                 @endif
 
             {{-- タブナビゲーション --}}
              <div class="bg-white rounded-lg shadow-sm mb-6">
-                <div class="flex border-b border-gray-200">
+                <div class="flex border-b border-gray-200 mb-4">
                     <button
                         @click="activeTab = 'posts'"
                         :class="activeTab === 'posts' ? 'bg-gray-200 text-gray-900' : 'bg-gray-100 text-gray-600'"
@@ -52,7 +51,7 @@
                     </button>
                 </div>
             {{-- タブの中''身 --}}
-            <div>
+            <div class="pt-4">
                 <div x-show = "activeTab === 'posts'" x-transition>
                     <p class="text-gray-500 text-center py-8">投稿タブ（今後実装）</p>
                 </div>
@@ -63,7 +62,7 @@
                 </div>
 
                 <div x-show="activeTab === 'trade'" x-transition>
-                    @include('community.partials.trade-tab')
+                    @include('community.partials.trade-tab-ref')
                 </div>
             </div>
         </div>
