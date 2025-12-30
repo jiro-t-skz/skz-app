@@ -33,7 +33,15 @@
                 class="w-full mb-3 px-4 py-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
 
             <div class="grid grid-cols-2 gap-4 mb-4">
-                <input type="date" name="date" 
+                <select
+                    name="type"
+                     required
+                     class="px-4 py-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                     <option value="">選択してください</option>
+                     <option value="companion">同行者募集</option>
+                     <option value="trade">トレード</option>
+                </select>
+                <input type="date" name="date"
                        class="px-4 py-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <input type="text" name="place" placeholder="場所" 
                        class="px-4 py-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -94,11 +102,17 @@
         <div class="flex-1">
             <div x-show="!editing">
             <div class="flex items-start justify-between mb-2">
-                <div class="flex-1">
-                    <h3 class="font-bold text-lg mb-1">{{$post->title}}</h3>
-                    <p class="font-semibold">{{$post->user->name}}</p>
-                    <p class="text-sm text-gray-500">{{$post->created_at->diffForHumans()}}</p>
-                </div>
+            <div class="flex-1">
+            {{-- タイトルと種別バッジ --}}
+            <div class="flex items-center gap-2 mb-1">
+                <h3 class="font-bold text-lg">{{ $post->title }}</h3>
+                <span class="text-xs px-3 py-1 rounded-full {{ $post->type == 'companion' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700' }}">
+                    {{ $post->type == 'companion' ? '同行者募集' : 'トレード' }}
+                </span>
+            </div>
+            <p class="font-semibold">{{ $post->user->name }}</p>
+            <p class="text-sm text-gray-500">{{ $post->created_at->diffForHumans() }}</p>
+        </div>
 
             {{-- 自分の投稿なら編集・削除ボタン --}}
             @if($post->user_id === Auth::id())
@@ -126,40 +140,149 @@
         <p class="text-sm text-gray-600 mb-3 whitespace-pre-wrap">{{$post->body}}</p>
 
         {{-- 詳細情報 --}}
-        @if($post->date || $post->place || $post->target || $post->contact_info)
-                            <div class="bg-gray-50 rounded-lg p-3">
-                                <div class="grid grid-cols-2 gap-3 text-sm">
-                                    @if($post->date)
-                                        <div>
-                                            <span class="font-semibold text-gray-700">日時:</span>
-                                            <span class="text-gray-600">{{ \Carbon\Carbon::parse($post->date)->format('Y年m月d日') }}</span>
-                                        </div>
-                                    @endif
+        @if($post->type || $post->date || $post->place || $post->target || $post->contact_info)
+             <div class="bg-gray-50 rounded-lg p-3">
+                     <div class="grid grid-cols-2 gap-3 text-sm">
+                            @if($post->date)
+                                <div>
+                                     <span class="font-semibold text-gray-700">日時:</span>
+                                     <span class="text-gray-600">{{ \Carbon\Carbon::parse($post->date)->format('Y年m月d日') }}</span>
+                                </div>
+                             @endif
 
-                                    @if($post->place)
-                                        <div>
-                                            <span class="font-semibold text-gray-700">場所:</span>
-                                            <span class="text-gray-600">{{ $post->place }}</span>
-                                        </div>
-                                    @endif
+                             @if($post->place)
+                                <div>
+                                     <span class="font-semibold text-gray-700">場所:</span>
+                                    <span class="text-gray-600">{{ $post->place }}</span>
+                                </div>
+                            @endif
 
-                                    @if($post->target)
-                                        <div>
-                                            <span class="font-semibold text-gray-700">対象:</span>
-                                            <span class="text-gray-600">{{ $post->target }}</span>
-                                        </div>
-                                    @endif
+                            @if($post->target)
+                                 <div>
+                                     <span class="font-semibold text-gray-700">対象:</span>
+                                     <span class="text-gray-600">{{ $post->target }}</span>
+                                 </div>
+                            @endif
 
-                                    @if($post->contact_info)
-                                        <div>
-                                            <span class="font-semibold text-gray-700">連絡先:</span>
-                                            <span class="text-gray-600">{{ $post->contact_info }}</span>
-                                        </div>
-                                    @endif
+                            @if($post->contact_info)
+                                 <div>
+                                    <span class="font-semibold text-gray-700">連絡先:</span>
+                                     <span class="text-gray-600">{{ $post->contact_info }}</span>
+                                </div>
+                            @endif
+                    </div>
+             </div>
+        @endif
+
+    {{-- コメントセクション--}}
+
+    <div class="mt-4 pt-4 border-t border-gray-200" x-data="{ showComments: false}">
+
+    {{--コメント数表示とトグル--}}
+        <button
+            @click="showComments = !showComments"
+            class="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1">
+            コメント ({{ $post->comments->count() }})
+            <svg
+                class="w-4 h-4 transition-transform"
+                :class="{ 'rotate-180': showComments}"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </button>
+
+        {{--コメント一覧--}}
+        <div x-show="showComments" x-transition class="mt-3 space-y-3">
+            @forelse($post->comments as $comment)
+                <div class="bg-gray-50 rounded-lg p-3" x-data="{ editingComment: false}">
+                    {{--コメント表示--}}
+                    <div x-show="!editingComment">
+                        <div class="flex items-start justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                    {{substr($comment->user->name,0,1)}}
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold">{{ $comment->user->name}}</p>
+                                    <p class="text-xs text-gray-500">{{ $comment->created_at->diffForHumans()}}</p>
                                 </div>
                             </div>
-                        @endif
+                            {{--自分のコメントなら編集・削除ボタン--}}
+                            @if($comment->user_id === Auth::id())
+                                <div class="flex gap-2">
+                                     <button
+                                        @click="editingComment = true"
+                                        class="text-xs px-2 py-1 border rounded hover:bg-white transition-colors">
+                                            編集
+                                    </button>
+                                        <form method="POST" action="{{ route('community.comments.destroy', $comment->id) }}">
+                                            @csrf
+                                                @method('DELETE')
+                                                    <button
+                                                        type="submit"
+                                                        onclick="return confirm('本当に削除しますか?')"
+                                                        class="text-xs px-2 py-1 border rounded hover:bg-red-50 hover:text-red-600 transition-colors">
+                                                        削除
+                                                    </button>
+                                        </form>
+                                </div>
+                            @endif
+                        </div>
+                        <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $comment->body }}</p>
                     </div>
+                    {{--コメント編集モード--}}
+                    <div x-show="editingComment" x-transition>
+                        <form method="POST" action="{{route('community.comments.update', $comment->id)}}">
+                        @csrf
+                                                @method('PUT')
+                                                <textarea
+                                                    name="body"
+                                                    rows="3"
+                                                    required
+                                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-sm">{{ $comment->body }}</textarea>
+                                                <div class="flex justify-end gap-2 mt-2">
+                                                    <button
+                                                        type="button"
+                                                        @click="editingComment = false"
+                                                        class="text-xs px-3 py-1 border rounded hover:bg-gray-50 transition-colors">
+                                                        キャンセル
+                                                    </button>
+                                                    <button
+                                                        type="submit"
+                                                        class="text-xs px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                                                        保存
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <p class="text-sm text-gray-500 text-center py-3">コメントはまだありません</p>
+                                @endforelse
+
+                                {{-- 新規コメント投稿フォーム --}}
+                                <form method="POST" action="{{ route('community.comments.store', $post->id) }}" class="mt-3">
+                                    @csrf
+                                    <div class="flex gap-2">
+                                        <textarea
+                                            name="body"
+                                            rows="2"
+                                            required
+                                            placeholder="コメントを書く..."
+                                            class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-sm"></textarea>
+                                        <button
+                                            type="submit"
+                                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm whitespace-nowrap self-end">
+                                            投稿
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
 
 
     {{--編集モード--}}
@@ -187,29 +310,37 @@
 
         {{-- グリッドレイアウト(2列) --}}
         <div class="grid grid-cols-2 gap-3">
-            <input 
-                type="date" 
-                name="date" 
+        {{--  種別選択 --}}
+            <select
+                name="type"
+                type="type"
+                class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="companion" {{ $post->type == 'companion' ? 'selected' : '' }}>同行者募集</option>
+                <option value="trade" {{ $post->type == 'trade' ? 'selected' : '' }}>トレード</option>
+            </select>
+            <input
+                type="date"
+                name="date"
                 value="{{ $post->date ? \Carbon\Carbon::parse($post->date)->format('Y-m-d') : '' }}"
                 class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <input 
-                type="text" 
-                name="place" 
+            <input
+                type="text"
+                name="place"
                 value="{{ $post->place }}"
-                placeholder="場所" 
+                placeholder="場所"
                 class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <input 
-                type="text" 
-                name="target" 
+            <input
+                type="text"
+                name="target"
                 value="{{ $post->target }}"
-                placeholder="対象" 
+                placeholder="対象"
                 required
                 class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <input 
-                type="text" 
-                name="contact_info" 
+            <input
+                type="text"
+                name="contact_info"
                 value="{{ $post->contact_info }}"
-                placeholder="連絡先" 
+                placeholder="連絡先"
                 required
                  class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
