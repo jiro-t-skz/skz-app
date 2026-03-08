@@ -5,11 +5,12 @@
 - プログラミングゼミのポートフォリオの完成版です。
 
 # 動作画面
-<img width="1415" height="781" alt="tab" src="https://github.com/user-attachments/assets/57419f2a-71f5-41ec-952d-0d9bc2e1731d" />
-<img width="1298" height="730" alt="post" src="https://github.com/user-attachments/assets/13cf0f1c-3306-4077-aceb-cadfd3df79a9" />
-<img width="930" height="453" alt="post-edit" src="https://github.com/user-attachments/assets/106194da-eb28-4103-bb2f-61d9e8630c39" />
-<img width="928" height="498![Uploading n-1.jpeg…]()
-" alt="comment-edit" src="https://github.com/user-attachments/assets/b387ef54-a3c6-415a-8059-9bfdba309a82" />
+<img width="756" height="833" alt="topPage" src="https://github.com/user-attachments/assets/3861811e-8588-4149-b909-a3a98958f180" />
+<img width="617" height="760" alt="ログイン画面" src="https://github.com/user-attachments/assets/2f5b6fd2-b08d-4d78-a669-1df240e82ae5" />
+<img width="787" height="822" alt="trade" src="https://github.com/user-attachments/assets/92db94b6-13e5-47c1-91c2-5e312bd86840" />
+<img width="794" height="815" alt="offmeeting" src="https://github.com/user-attachments/assets/419bc53c-7607-4d8a-bde8-b2136ac21f66" />
+<img width="637" height="747" alt="post" src="https://github.com/user-attachments/assets/2359292b-089d-4447-8e57-76a526806873" />
+
 
 
 # 使用技術
