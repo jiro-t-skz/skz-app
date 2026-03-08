@@ -4,35 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class TradePost extends Model
+class OffmeetingPostsComment extends Model
 {
-    //
     use HasFactory,SoftDeletes;
 
     protected $fillable = [
         'user_id',
-        'title',
+        'offmeeting_posts_id',
         'body',
-        'type',
-        'target',
-        'contact_info',
-        'date',
-        'place',
     ];
 
     protected $casts = [
-        'date' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function comments()
+    public function offmeetingPost(): BelongsTo
     {
-        return $this->hasMany(TradePostComment::class)->latest();
+        return $this->belongsTo(OffmeetingPost::class, 'offmeeting_posts_id');
     }
 }

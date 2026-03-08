@@ -3,142 +3,98 @@
 namespace App\Http\Controllers;
 
 use App\Models\TradePost;
-use App\Models\TradePostComment;
+use App\Models\OffmeetingPost;
+use App\Models\NormalPost;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+
 
 class CommunityController extends Controller
 {
-    //
-public function index(Request $request)
-{
-    $search = $request->get('search');
 
-    $posts = TradePost::with(['user', 'comments.user'])
-    ->when($search, function ($query) use ($search){
-        $query->where('title', 'ILIKE', "%{$search}%")
-        ->orWhere('body', 'ILIKE', "%{$search}%")
-        ->orWhere('type', 'ILIKE', "%{$search}%")
-        ->orWhere('date', 'ILIKE', "%{$search}%")
-        ->orWhere('place', 'ILIKE', "%{$search}%")
-        ->orWhere('target', 'ILIKE', "%{$search}%")
-        ->orWhere('contact_info', 'ILIKE', "%{$search}%");
+ //index・
+    public function index(Request $request)
+    {
+    $tradeSearch = $request->get('trade_search');
+
+
+    $tradePosts = TradePost::with(['user', 'comments.user'])
+    ->when($tradeSearch, function ($query) use ($tradeSearch){
+        $query->where('title', 'ILIKE', "%{$tradeSearch}%")
+        ->orWhere('body', 'ILIKE', "%{$tradeSearch}%")
+        ->orWhere('type', 'ILIKE', "%{$tradeSearch}%")
+        ->orWhere('date', 'ILIKE', "%{$tradeSearch}%")
+        ->orWhere('place', 'ILIKE', "%{$tradeSearch}%")
+        ->orWhere('target', 'ILIKE', "%{$tradeSearch}%")
+        ->orWhere('contact_info', 'ILIKE', "%{$tradeSearch}%");
     })
     ->latest()
-    ->paginate(10);
+    ->paginate(5,['*'], 'trade_page');
 
-    return view('community.index', compact('posts','search'));
-}
+    $prefectures = [
+        '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
+        '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
+        '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県',
+        '岐阜県', '静岡県', '愛知県', '三重県',
+        '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県',
+        '鳥取県', '島根県', '岡山県', '広島県', '山口県',
+        '徳島県', '香川県', '愛媛県', '高知県',
+        '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'
+    ];
 
-public function store(Request $request)
-{
+    $offmeetingSearch = $request->get('offmeeting_search');
+     $selectedPrefecture = $request->get('prefecture');
 
-    $validated = $request->validate([
-        'title' => 'required|max:255',
-        'body' => 'required',
-        'type' =>  ['required', 'in:companion,trade'],
-        'date' => 'nullable|date',
-        'place' => 'nullable|string|max:255',
-        'target' => 'required|string|max:255',
-        'contact_info' => 'required|string|max:255',
-    ]);
+     $offmeetingPosts = OffmeetingPost::with(['user', 'comments.user'])
+     ->when($offmeetingSearch, function ($query) use ($offmeetingSearch){
+         $query->where(function($q) use ($offmeetingSearch) {
+             $q->where('title', 'ILIKE', "%{$offmeetingSearch}%")
+               ->orWhere('body', 'ILIKE', "%{$offmeetingSearch}%")
+               ->orWhere('prefecture', 'ILIKE', "%{$offmeetingSearch}%")
+               ->orWhere('date', 'ILIKE', "%{$offmeetingSearch}%")
+               ->orWhere('place', 'ILIKE', "%{$offmeetingSearch}%")
+               ->orWhere('capacity', 'ILIKE', "%{$offmeetingSearch}%")
+               ->orWhere('contact_info', 'ILIKE', "%{$offmeetingSearch}%");
+         });
+     })
+     ->when($selectedPrefecture, function ($query) use ($selectedPrefecture){
+         $query->where('prefecture', $selectedPrefecture);
+     })
+     ->latest()
+     ->paginate(5,['*'], 'offmeeting_page');
 
-    TradePost::create([
-        'user_id' => Auth::id(),
-        'title' => $validated['title'],
-        'body' => $validated['body'],
-        'date' => $validated['date'],
-        'type' => $validated['type']??'trade',
-        'place' => $validated['place'],
-        'target' => $validated['target'],
-        'contact_info' => $validated['contact_info'],
-    ]);
+    $normalSearch = $request->get('normal_search');
 
-    return redirect()->route('community.index')->with('success', '投稿しました!。');
-}
+    $normalPosts = NormalPost::with(['user', 'comments.user'])
+    ->when($normalSearch, function ($query) use ($normalSearch){
+        $query->where('body', 'ILIKE', "%{$normalSearch}%");
+    })
+    ->latest()
+    ->paginate(5,['*'], 'normal_page');
 
-public function update(Request $request, $id)
-{
-    $post = TradePost::findOrFail($id);
+    $activeTab = $request->get('active_tab', 'trade');
 
-    if($post->user_id !== Auth::id()){
-        abort(403,'この投稿を編集する権限がありません');
+    if(!$request->has('active_tab')){
+        if($offmeetingSearch||$selectedPrefecture){
+            $activeTab = 'offmeeting';
+        }elseif($normalSearch){
+            $activeTab = 'normal';
+        }elseif($tradeSearch){
+            $activeTab = 'trade';
+        }
     }
 
-    $validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'body' => 'required|string',
-        'type' => ['required', 'in:companion,trade'],
-        'date' => 'nullable|date',
-        'place' => 'nullable|string|max:255',
-        'target' => 'required|string|max:255',
-        'contact_info' => 'required|string|max:255',
-    ]);
-
-    $post->update($validated);
-
-    return redirect()->route('community.index')->with('success','投稿を更新しました。');
+    return view('community.index', compact(
+        'tradePosts',
+        'tradeSearch',
+         'prefectures',
+         'offmeetingPosts',
+         'offmeetingSearch',
+         'selectedPrefecture',
+         'normalPosts',
+         'normalSearch',
+         'activeTab'
+        ));
 }
 
-
-public function destroy($id)
- {
-    $post = TradePost::findOrFail($id);
-
-    if($post->user_id !== Auth::id()){
-        abort(403);
-    }
-
-    $post->delete();
-
-    return redirect()->route('community.index')->with('success', '投稿を削除しました。');
- }
-
- public function storeComment(Request $request, $postId)
- {
-    $post = TradePost::findOrFail($postId);
-
-    $validated = $request->validate([
-        'body' => 'required|string|max:1000',
-    ]);
-
-    TradePostComment::create([
-        'user_id' => Auth::id(),
-        'trade_post_id' => $post->id,
-        'body' => $validated['body'],
-    ]);
-
-    return redirect()->route('community.index')->with('success', 'コメントを投稿しました！');
- }
-
-public function updateComment(Request $request, $commentId)
-{
-    $comment = TradePostComment::findOrFail($commentId);
-
-    if($comment->user_id !== Auth::id()){
-        abort(403, 'このコメントを編集する権限がありません');
-    }
-
-    $validated = $request->validate([
-        'body'=> 'required|string|max:1000',
-    ]);
-
-    $comment->update($validated);
-
-    return redirect()->route('community.index')->with('success', 'コメントを更新しました！');
-}
-
-public function destroyComment($commentId)
-{
-    $comment = TradePostComment::findOrFail($commentId);
-
-    if($comment->user_id !== Auth::id())
-    {
-        abort(403,'このコメントを削除する権限がありません');
-    }
-    $comment->delete();
-
-    return redirect()->route('community.index')->with('success','コメントを削除しました。');
-}
 
 }

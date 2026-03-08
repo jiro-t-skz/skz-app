@@ -1,14 +1,14 @@
-<div x-data="{ showForm:false }">
+<div x-data="{ ShowForm:false }">
     {{--投稿フォーム--}}
-    @include('community.components.trade-tab.trade-post-form')
+    @include('community.components.normal-tab.normal-post-form')
 
     {{-- 検索バ- --}}
-    @include('community.components.trade-tab.trade-search-bar',['search' => $tradeSearch ?? ''])
+    @include('community.components.normal-tab.normal-search-bar',['search' => $normalSearch ?? ''])
 
     {{--投稿リスト--}}
     <div class="space-y-4">
-        @forelse($tradePosts as $post)
-            @include('community.components.trade-tab.trade-post-card', ['post'=>$post])
+        @forelse($normalPosts as $normalPost)
+            @include('community.components.normal-tab.normal-post-card', ['normalPost'=>$normalPost])
         @empty
             <div class="text-center py-12">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,7 +23,7 @@
     {{-- ページネーション --}}
     @if($offmeetingPosts->hasPages())
         <div class="mt-6">
-             {{ $tradePosts->appends(array_merge(request()->query(), ['active_tab' => 'trade']))->links() }}
+        {{ $normalPosts->appends(array_merge(request()->query(), ['active_tab' => 'normal']))->links() }}
         </div>
     @endif
 </div>

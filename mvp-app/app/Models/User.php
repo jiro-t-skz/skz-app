@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -21,6 +22,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'bio',
+        'favorite_member',
+        'favorite_song',
+        'favorite_mv'
     ];
 
     /**
@@ -45,4 +50,26 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function tradePosts()
+    {
+        return $this->hasMany(\App\Models\TradePost::class, 'user_id');
+    }
+
+    public function tradePostComments()
+    {
+        return $this->hasMany(\App\Models\TradePostComment::class, 'user_id');
+    }
+
+
+    public function offmeetingPosts(): HasMany
+    {
+        return $this->hasMany(OffmeetingPost::class);
+    }
+
+
+    public function offmeetingPostsComments(): HasMany
+    {
+        return $this->hasMany(OffmeetingPostsComment::class);
+    }
+
 }

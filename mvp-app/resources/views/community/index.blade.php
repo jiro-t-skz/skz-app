@@ -1,76 +1,107 @@
 <x-app-layout>
-    {{-- ヘッダー部分（ページタイトル） --}}
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight text-center">
-            {{ __('コミュニティ') }}
-        </h2>
-    </x-slot>
 
     {{--  メインコンテンツ --}}
-
-    <div class="py-12">
+    <div class="py-6 sm:py-12
+                bg-gradient-to-br from-white via-sakura-pink/40 to-sakura-purple/40">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6"
-                x-data="{activeTab:'trade',showPostForm:false}">
+            <div class="bg-white
+                        overflow-hidden 
+                        shadow-xl sm:rounded-2xl 
+                        border-2 border-sakura-purple/20">
+                <div class="p-4 sm:p-6"
+                x-data="{activeTab:'{{ $activeTab ?? 'trade' }}',showPostForm:false}">
 
-                {{-- タイトル --}}
-                <div class="flex flex-col items-center mb-8">
-                    <h2 class="text-2xl font-bold mb-2">コミュニティ</h2>
-                    <p class="text-gray-600">Buddies同士で交流しよう!</p>
-                </div>
-
-                {{-- 成功メッセージ --}}
-                @if(session('success'))
-                    <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700">
-                        {{session('success')}}
+                    {{-- タイトル --}}
+                    <div class="flex flex-col items-center mb-6 sm:mb-0">
+                        <div class="mb-4 w-20 h-20 
+                                    bg-gradient-to-br from-sakura-purple to-sakura-pink
+                                    rounded-2xl
+                                    flex items-center
+                                    justify-center
+                                    shadow-xl">
+                            <span class="text-white text-3xl font-bold font-serif">櫻</span>
+                        </div>
+                        <p class="text-gray-600">Buddies同士で交流しよう!</p>
                     </div>
-                @endif
 
-            {{-- タブナビゲーション --}}
-             <div class="bg-white rounded-lg shadow-sm mb-6">
-                <div class="flex border-b border-gray-200 mb-4">
-                    <button
-                        @click="activeTab = 'posts'"
-                        :class="activeTab === 'posts' ? 'bg-gray-200 text-gray-900' : 'bg-gray-100 text-gray-600'"
-                        class="flex-1 py-4 px-6 text-center font-medium rounded-tl-lg hover:bg-gray-150 transition-colors">投稿
-                    </button>
+                    {{-- 成功メッセージ --}}
+                    @if(session('success'))
+                        <div class="mb-4 sm:mb-6 p-3 sm:p-4
+                                    bg-sakura-pink/20
+                                    border-2 border-sakura-pink
+                                    rounded-lg
+                                    text-sakura-purple
+                                    text-sm sm:text-base">
+                            {{session('success')}}
+                        </div>
+                    @endif
 
-                    <button
-                        @click="activeTab = 'meetup'"
-                        :class="activeTab === 'meetup' ? 'bg-gray-200 text-gray-900' : 'bg-gray-100 text-gray-600'"
-                        class="flex-1 py-4 px-6 text-center font-medium hover:bg-gray-150 transition-colors">
-                        オフ会
-                    </button>
+                    {{-- タブナビゲーション --}}
+                    <div class="bg-white
+                                rounded-lg
+                                shadow-sm
+                                mb-4 sm:mb-6">
+                        <div class="flex border-b-2 
+                                    border-sakura-pink/30
+                                    mb-4 
+                                    overflow-x-auto
+                                    scrollbar-hide">
+                            <button
+                                @click="activeTab = 'normal'"
+                                :class="activeTab === 'normal' ? 'border-b-2 border-sakura-pink text-sakura-pink font-semibold' : 'text-gray-500'"
+                                class="flex-shrink-0 py-3 sm:py-4 px-3 sm:px-6
+                                       text-sm sm:text-base text-center
+                                       font-medium
+                                       hover:text-sakura-pink
+                                       transition-colors
+                                       whitespace-nowrap">
+                                投稿
+                            </button>
 
-                    <button
-                        @click = "activeTab = 'trade'"
-                        :class = "activeTab === 'trade' ? 'bg-gray-200 text-gray-900' : 'bg-gray-100 text-gray-600'"
-                        class="flex-1 py-4 px-6 text-center font-medium hover:bg-gray-150 transition-colors">
-                        同行者募集・トレード
-                    </button>
-                </div>
-            {{-- タブの中''身 --}}
-            <div class="pt-4">
-                <div x-show = "activeTab === 'posts'" x-transition>
-                    <p class="text-gray-500 text-center py-8">投稿タブ（今後実装）</p>
-                </div>
+                            <button
+                                @click="activeTab = 'offmeeting'"
+                                :class="activeTab === 'offmeeting' ? 'border-b-2 border-sakura-pink text-sakura-pink font-semibold' : 'text-gray-500'"
+                                class="flex-shrink-0 py-3 sm:py-4 px-3 sm:px-6 
+                                       text-sm sm:text-base text-center 
+                                       font-medium 
+                                       hover:text-sakura-pink 
+                                       transition-colors 
+                                       whitespace-nowrap">
+                                オフ会
+                            </button>
+
+                            <button
+                                @click = "activeTab = 'trade'"
+                                :class = "activeTab === 'trade' ? 'border-b-2 border-sakura-pink text-sakura-pink font-semibold' : 'text-gray-500'"
+                                class="flex-shrink-0 
+                                       py-3 sm:py-4 px-3 sm:px-6 
+                                       text-sm sm:text-base text-center 
+                                       font-medium 
+                                       hover:text-sakura-pink 
+                                       transition-colors 
+                                       whitespace-nowrap">
+                                同行者募集・トレード
+                            </button>
+                        </div>
+
+                        {{-- タブの中身 --}}
+                        <div class="pt-2 sm:pt-4">
+                        <div x-show = "activeTab === 'normal'" x-cloak x-transition>
+                                @include('community.partials.normal-tab')
+                            </div>
 
 
-                <div x-show = "activeTab === 'meetup'" x-transition>
-                    <p class="text-gray-500 text-center py-8">オフ会タブ（今後実装）</p>
-                </div>
+                            <div x-show = "activeTab === 'offmeeting'" x-cloak x-transition>
+                                @include('community.partials.offmeeting-tab')
+                            </div>
 
-                <div x-show="activeTab === 'trade'" x-transition>
-                    @include('community.partials.trade-tab-ref')
+                            <div x-show="activeTab === 'trade'" x-cloak x-transition>
+                                @include('community.partials.trade-tab-ref')
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-     </div>
- </div>
-</div>
-</div>
-
-
-
+    </div>
 </x-app-layout>

@@ -25,6 +25,10 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'favorite_member' => ['nullable', 'string', 'max:255'],
+            'favorite_song' => ['nullable', 'string', 'max:255'],
+            'favorite_mv' => ['nullable', 'string', 'max:255'],
+            'bio' => ['nullable', 'string', 'max:500'],
         ];
     }
 }

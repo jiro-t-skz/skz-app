@@ -1,11 +1,11 @@
 <section class="space-y-6">
     <header>
         <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Delete Account') }}
+            {{ __('アカウントの削除') }}
         </h2>
 
         <p class="mt-1 text-sm text-gray-600">
-            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
+            {{ __('アカウントを削除すると、そのアカウントに関連するすべてのリソースとデータは完全に削除され、元に戻せません。削除する前に、残しておきたいデータや情報があれば必ずダウンロードしてください。') }}
         </p>
     </header>
 
