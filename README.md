@@ -13,6 +13,7 @@
 
 # ER図
 
+<img width="1293" height="728" alt="ER" src="https://github.com/user-attachments/assets/2c306de4-c54b-47d0-8603-b575c98eb46d" />
 
 
 # 使用技術
